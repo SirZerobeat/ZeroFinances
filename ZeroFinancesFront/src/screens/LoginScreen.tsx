@@ -58,6 +58,10 @@ export function LoginScreen() {
       contentContainerStyle={styles.container}
       keyboardShouldPersistTaps="handled"
     >
+      <View style={styles.devBadge}>
+        <Text style={styles.devBadgeText}>🔧 Modo Desarrollo</Text>
+      </View>
+
       <View style={styles.header}>
         <Text style={styles.title}>ZeroFinances</Text>
         <Text style={styles.subtitle}>Gestiona tus finanzas con Zero</Text>
@@ -66,7 +70,7 @@ export function LoginScreen() {
       <View style={styles.form}>
         <Input
           label="Email"
-          placeholder="tu@email.com"
+          placeholder="admin@test.com"
           value={email}
           onChangeText={setEmail}
           error={emailError}
@@ -77,7 +81,7 @@ export function LoginScreen() {
 
         <Input
           label="Contraseña"
-          placeholder="••••••••"
+          placeholder="admin123"
           value={password}
           onChangeText={setPassword}
           error={passwordError}
@@ -91,6 +95,12 @@ export function LoginScreen() {
           loading={isLoading}
           disabled={isLoading}
         />
+      </View>
+
+      <View style={styles.testCredentials}>
+        <Text style={styles.testTitle}>🧪 Credenciales de Prueba:</Text>
+        <Text style={styles.testText}>Email: <Text style={styles.testCode}>admin@test.com</Text></Text>
+        <Text style={styles.testText}>Contraseña: <Text style={styles.testCode}>admin123</Text></Text>
       </View>
 
       <View style={styles.footer}>
@@ -110,9 +120,24 @@ const styles = StyleSheet.create({
     padding: 24,
     backgroundColor: '#fff',
   },
+  devBadge: {
+    backgroundColor: '#fff3cd',
+    borderWidth: 1,
+    borderColor: '#ffc107',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  devBadgeText: {
+    color: '#856404',
+    fontSize: 12,
+    fontWeight: '600',
+  },
   header: {
     alignItems: 'center',
-    marginTop: 60,
+    marginTop: 40,
     marginBottom: 40,
   },
   title: {
@@ -126,7 +151,33 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   form: {
-    marginBottom: 40,
+    marginBottom: 24,
+  },
+  testCredentials: {
+    backgroundColor: '#f0f8ff',
+    borderWidth: 1,
+    borderColor: '#007AFF',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 24,
+  },
+  testTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#007AFF',
+    marginBottom: 8,
+  },
+  testText: {
+    fontSize: 12,
+    color: '#333',
+    marginBottom: 4,
+  },
+  testCode: {
+    fontFamily: 'Courier New',
+    backgroundColor: '#fff',
+    paddingHorizontal: 4,
+    borderRadius: 2,
+    fontWeight: '600',
   },
   footer: {
     alignItems: 'center',
