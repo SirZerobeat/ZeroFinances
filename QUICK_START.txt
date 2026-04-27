@@ -1,0 +1,123 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                  EJECUTAR ZEROFINANCES EN LOCAL                             ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+🎯 OPCIÓN 1: La más rápida (WEB) ⚡
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Abre terminal en VS Code (Ctrl + ~)
+
+2. Ejecuta:
+   cd ZeroFinancesFront
+   npm start
+
+3. Presiona: w
+
+4. Se abre automáticamente http://localhost:19006
+
+5. ¡LISTO! Ahora edita archivos y verás cambios al instante
+
+
+🎯 OPCIÓN 2: En tu teléfono (más realista) 📱
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Descarga "Expo Go" en tu teléfono
+   - iOS: App Store
+   - Android: Google Play
+
+2. En VS Code, ejecuta:
+   cd ZeroFinancesFront
+   npm start
+
+3. Se mostrará un QR en la terminal
+
+4. Abre Expo Go → "Scan QR code" → apunta a la pantalla
+
+5. ¡Ves la app en tu teléfono con cambios en tiempo real!
+
+
+🎯 OPCIÓN 3: Script rápido (sin escribir) 🚀
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Haz doble clic en:
+  → start-dev.bat (Windows CMD)
+  → o start-dev.ps1 (PowerShell)
+
+Se abrirá la terminal y iniciará automáticamente
+
+
+📋 EXTENSIONES VS CODE NECESARIAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Instala en VS Code (Ctrl + Shift + X):
+
+1. "Expo Tools" - expo.vscode-expo-tools
+2. "ES7+ React/Redux snippets" - dsznajder.es7-react-js-snippets
+3. "Prettier" - esbenp.prettier-vscode
+
+
+⌨️ COMANDOS ÚTILES EN LA TERMINAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Durante npm start, presiona:
+
+  w  → Abre en navegador
+  a  → Abre en Android
+  i  → Abre en iOS
+  r  → Recargar app
+  c  → Limpiar pantalla
+  q  → Salir
+
+
+🔄 HOW IT WORKS - Hot Reload
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Editas un archivo en src/
+2. Guardas (Ctrl + S)
+3. ¡AUTOMÁTICAMENTE se actualiza en el navegador/teléfono!
+
+Ejemplo:
+  - Cambias el texto de LoginScreen.tsx
+  - Guardas
+  - En 1 segundo ves el cambio en la pantalla
+
+
+📁 ARCHIVOS IMPORTANTES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Toda la lógica está aquí:
+
+  src/screens/        ← Las 5 pantallas principales
+  src/components/     ← Botones, inputs, etc.
+  src/store/          ← Estado global
+  src/navigation/     ← Navegación
+  App.tsx             ← Archivo principal
+
+
+❓ PREGUNTAS FRECUENTES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+P: ¿No ves cambios en tiempo real?
+R: Presiona "r" en la terminal para recargar
+
+P: ¿El puerto 19000 está en uso?
+R: npm start -- --port 19001
+
+P: ¿No puedes instalar dependencias?
+R: npm install --legacy-peer-deps
+
+P: ¿Quieres ver logs en detalle?
+R: npm start -- --verbose
+
+
+🎉 ¡LISTO PARA EMPEZAR!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Solo ejecuta en la terminal:
+
+  cd ZeroFinancesFront && npm start
+
+Presiona "w" y verás la app en tu navegador.
+
+¡Empieza a editar y diviértete! 🚀
+
