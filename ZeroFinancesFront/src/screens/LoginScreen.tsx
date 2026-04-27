@@ -4,12 +4,16 @@ import {
   StyleSheet,
   ScrollView,
   Text,
-  ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { useAuthStore } from '../store/authStore';
+import { useThemeStore } from '../store/themeStore';
+import { getThemeColors } from '../utils/colors';
 
 export function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -18,6 +22,8 @@ export function LoginScreen() {
   const [passwordError, setPasswordError] = useState('');
 
   const { login, isLoading } = useAuthStore();
+  const theme = useThemeStore((state) => state.theme);
+  const colors = getThemeColors(theme);
 
   const validateForm = (): boolean => {
     let isValid = true;
@@ -54,76 +60,83 @@ export function LoginScreen() {
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.container}
-      keyboardShouldPersistTaps="handled"
-    >
-      <View style={styles.devBadge}>
-        <Text style={styles.devBadgeText}>🔧 Modo Desarrollo</Text>
-      </View>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <ScrollView
+          contentContainerStyle={[styles.container, { backgroundColor: colors.background }]}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={[styles.devBadge, { backgroundColor: colors.warning, borderColor: colors.warning }]}>
+            <Text style={styles.devBadgeText}>🔧 Modo Desarrollo</Text>
+          </View>
 
-      <View style={styles.header}>
-        <Text style={styles.title}>ZeroFinances</Text>
-        <Text style={styles.subtitle}>Gestiona tus finanzas con Zero</Text>
-      </View>
+          <View style={styles.header}>
+            <Text style={[styles.title, { color: colors.primary }]}>ZeroFinances</Text>
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Gestiona tus finanzas con Zero</Text>
+          </View>
 
-      <View style={styles.form}>
-        <Input
-          label="Email"
-          placeholder="admin@test.com"
-          value={email}
-          onChangeText={setEmail}
-          error={emailError}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          editable={!isLoading}
-        />
+          <View style={styles.form}>
+            <Input
+              label="Email"
+              placeholder="admin@test.com"
+              value={email}
+              onChangeText={setEmail}
+              error={emailError}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              editable={!isLoading}
+            />
 
-        <Input
-          label="Contraseña"
-          placeholder="admin123"
-          value={password}
-          onChangeText={setPassword}
-          error={passwordError}
-          secureTextEntry
-          editable={!isLoading}
-        />
+            <Input
+              label="Contraseña"
+              placeholder="admin123"
+              value={password}
+              onChangeText={setPassword}
+              error={passwordError}
+              secureTextEntry
+              editable={!isLoading}
+            />
 
-        <Button
-          title={isLoading ? 'Iniciando sesión...' : 'Iniciar sesión'}
-          onPress={handleLogin}
-          loading={isLoading}
-          disabled={isLoading}
-        />
-      </View>
+            <Button
+              title={isLoading ? 'Iniciando sesión...' : 'Iniciar sesión'}
+              onPress={handleLogin}
+              loading={isLoading}
+              disabled={isLoading}
+            />
+          </View>
 
-      <View style={styles.testCredentials}>
-        <Text style={styles.testTitle}>🧪 Credenciales de Prueba:</Text>
-        <Text style={styles.testText}>Email: <Text style={styles.testCode}>admin@test.com</Text></Text>
-        <Text style={styles.testText}>Contraseña: <Text style={styles.testCode}>admin123</Text></Text>
-      </View>
+          <View style={[styles.testCredentials, { backgroundColor: colors.surface, borderColor: colors.primary }]}>
+            <Text style={[styles.testTitle, { color: colors.primary }]}>🧪 Credenciales de Prueba:</Text>
+            <Text style={[styles.testText, { color: colors.text }]}>Email: <Text style={styles.testCode}>admin@test.com</Text></Text>
+            <Text style={[styles.testText, { color: colors.text }]}>Contraseña: <Text style={styles.testCode}>admin123</Text></Text>
+          </View>
 
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>
-          ¿No tienes cuenta?{' '}
-          <Text style={styles.link}>Regístrate aquí</Text>
-        </Text>
-      </View>
-    </ScrollView>
+          <View style={styles.footer}>
+            <Text style={[styles.footerText, { color: colors.textSecondary }]}>
+              ¿No tienes cuenta?{' '}
+              <Text style={[styles.link, { color: colors.primary }]}>Regístrate aquí</Text>
+            </Text>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   container: {
     flexGrow: 1,
     justifyContent: 'space-between',
     padding: 24,
-    backgroundColor: '#fff',
   },
   devBadge: {
-    backgroundColor: '#fff3cd',
     borderWidth: 1,
-    borderColor: '#ffc107',
     borderRadius: 8,
     paddingVertical: 8,
     paddingHorizontal: 12,
@@ -131,7 +144,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   devBadgeText: {
-    color: '#856404',
+    color: '#333',
     fontSize: 12,
     fontWeight: '600',
   },
@@ -143,20 +156,16 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#007AFF',
   },
   subtitle: {
     fontSize: 14,
-    color: '#666',
     marginTop: 8,
   },
   form: {
     marginBottom: 24,
   },
   testCredentials: {
-    backgroundColor: '#f0f8ff',
     borderWidth: 1,
-    borderColor: '#007AFF',
     borderRadius: 8,
     padding: 12,
     marginBottom: 24,
@@ -164,17 +173,15 @@ const styles = StyleSheet.create({
   testTitle: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#007AFF',
     marginBottom: 8,
   },
   testText: {
     fontSize: 12,
-    color: '#333',
     marginBottom: 4,
   },
   testCode: {
     fontFamily: 'Courier New',
-    backgroundColor: '#fff',
+    backgroundColor: 'transparent',
     paddingHorizontal: 4,
     borderRadius: 2,
     fontWeight: '600',
@@ -184,10 +191,8 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 14,
-    color: '#666',
   },
   link: {
-    color: '#007AFF',
     fontWeight: '600',
   },
 });

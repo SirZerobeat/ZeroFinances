@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import apiClient from '../api/client';
 
 export interface Message {
   id: string;
@@ -32,7 +33,7 @@ export const useChatStore = create<ChatStore>((set) => ({
   sendMessage: async (content: string) => {
     set({ isLoading: true });
     try {
-      // Agregar mensaje del usuario
+      // Add user message immediately
       const userMessage: Message = {
         id: Date.now().toString(),
         sender: 'user',
@@ -45,23 +46,42 @@ export const useChatStore = create<ChatStore>((set) => ({
         messages: [...state.messages, userMessage]
       }));
 
-      // TODO: Conectar con el backend FastAPI/Gemini
-      // const response = await axios.post('http://localhost:8000/chat', { message: content });
-      // const zeroResponse = response.data.reply;
+      // Connect to backend FastAPI - Chat with Zero
+      try {
+        const response = await apiClient.post('/chat', { message: content });
 
-      // Mock para desarrollo
-      const zeroMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        sender: 'zero',
-        content: 'Entendido. Aquí te ayudaré a gestionar tus finanzas. ¿Qué necesitas hacer hoy?',
-        timestamp: new Date(),
-        type: 'text'
-      };
+        const zeroData = response.data;
+        const zeroMessage: Message = {
+          id: zeroData.id,
+          sender: 'zero',
+          content: zeroData.content,
+          timestamp: new Date(zeroData.timestamp),
+          type: zeroData.type || 'text'
+        };
 
-      set((state) => ({
-        messages: [...state.messages, zeroMessage],
-        isLoading: false
-      }));
+        set((state) => ({
+          messages: [...state.messages, zeroMessage],
+          isLoading: false
+        }));
+
+      } catch (apiError) {
+        console.error('Error connecting to chat backend:', apiError);
+
+        // Fallback response if backend fails
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          sender: 'zero',
+          content: 'Disculpa, tuve un problema conectándome al servidor. Por favor intenta de nuevo.',
+          timestamp: new Date(),
+          type: 'text'
+        };
+
+        set((state) => ({
+          messages: [...state.messages, errorMessage],
+          isLoading: false
+        }));
+      }
+
     } catch (error) {
       console.error('Send message failed:', error);
       set({ isLoading: false });

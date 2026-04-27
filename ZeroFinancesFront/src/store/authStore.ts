@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import apiClient from '../api/client';
 
 interface User {
   id: string;
@@ -28,44 +29,29 @@ export const useAuthStore = create<AuthStore>((set) => ({
   login: async (email: string, password: string) => {
     set({ isLoading: true });
     try {
-      // Credenciales de prueba para desarrollo
-      const TEST_CREDENTIALS = {
-        email: 'admin@test.com',
-        password: 'admin123',
-      };
+      // Connect to backend FastAPI
+      const response = await apiClient.post('/auth/login', {
+        email,
+        password,
+      });
 
-      // Validar credenciales de prueba
-      if (email === TEST_CREDENTIALS.email && password === TEST_CREDENTIALS.password) {
-        const mockUser: User = {
-          id: '1',
-          nombre: 'Admin (Dev)',
-          email: email,
-        };
+      const { token, user_id, nombre } = response.data;
 
-        set({
-          user: mockUser,
-          token: 'dev-token-admin123',
-          isAuthenticated: true
-        });
-        return;
-      }
-
-      // TODO: Conectar con el backend FastAPI
-      // const response = await axios.post('http://localhost:8000/auth/login', { email, password });
-      // const { user, token } = response.data;
-
-      // Mock para desarrollo - cualquier otro email/pass válido
-      const mockUser: User = {
-        id: '1',
-        nombre: 'Usuario',
+      const user: User = {
+        id: user_id,
+        nombre: nombre,
         email: email,
       };
 
       set({
-        user: mockUser,
-        token: 'mock-token',
+        user,
+        token,
         isAuthenticated: true
       });
+
+      // Add token to default headers for future requests
+      apiClient.defaults.headers.common['Authorization'] = `bearer ${token}`;
+
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
@@ -75,6 +61,9 @@ export const useAuthStore = create<AuthStore>((set) => ({
   },
 
   logout: () => {
+    // Remove token from headers
+    delete apiClient.defaults.headers.common['Authorization'];
+
     set({
       user: null,
       token: null,
@@ -88,5 +77,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
   setToken: (token: string) => {
     set({ token });
+    // Add token to default headers
+    apiClient.defaults.headers.common['Authorization'] = `bearer ${token}`;
   },
 }));

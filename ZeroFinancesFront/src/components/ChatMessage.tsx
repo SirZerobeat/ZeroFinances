@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Message } from '../store/chatStore';
+import { useThemeStore } from '../store/themeStore';
+import { getThemeColors } from '../utils/colors';
 
 interface ChatMessageProps {
   message: Message;
@@ -8,6 +10,8 @@ interface ChatMessageProps {
 
 export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   const isUser = message.sender === 'user';
+  const theme = useThemeStore((state) => state.theme);
+  const colors = getThemeColors(theme);
 
   return (
     <View
@@ -19,18 +23,20 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       <View
         style={[
           styles.messageBubble,
-          isUser ? styles.userBubble : styles.zeroBubble
+          isUser
+            ? { backgroundColor: colors.primary }
+            : { backgroundColor: colors.surface }
         ]}
       >
         <Text
           style={[
             styles.messageText,
-            isUser ? styles.userText : styles.zeroText
+            isUser ? { color: '#fff' } : { color: colors.text }
           ]}
         >
           {message.content}
         </Text>
-        <Text style={styles.timestamp}>
+        <Text style={[styles.timestamp, { color: colors.textTertiary }]}>
           {message.timestamp.toLocaleTimeString([], {
             hour: '2-digit',
             minute: '2-digit'
@@ -58,25 +64,12 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 12,
   },
-  userBubble: {
-    backgroundColor: '#007AFF',
-  },
-  zeroBubble: {
-    backgroundColor: '#e9ecef',
-  },
   messageText: {
     fontSize: 14,
     lineHeight: 20,
   },
-  userText: {
-    color: '#fff',
-  },
-  zeroText: {
-    color: '#333',
-  },
   timestamp: {
     fontSize: 11,
     marginTop: 4,
-    color: '#666',
   },
 });

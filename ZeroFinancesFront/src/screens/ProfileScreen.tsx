@@ -7,11 +7,16 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../store/authStore';
+import { useThemeStore } from '../store/themeStore';
+import { getThemeColors } from '../utils/colors';
 import { Button } from '../components/Button';
 
 export function ProfileScreen() {
   const { user, logout } = useAuthStore();
+  const { theme, toggleTheme } = useThemeStore();
+  const colors = getThemeColors(theme);
 
   const handleLogout = () => {
     Alert.alert(
@@ -33,60 +38,61 @@ export function ProfileScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.avatar}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+        <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
           <Text style={styles.avatarText}>
             {user?.nombre?.charAt(0).toUpperCase() || 'U'}
           </Text>
         </View>
-        <Text style={styles.nombre}>{user?.nombre || 'Usuario'}</Text>
-        <Text style={styles.email}>{user?.email || 'email@ejemplo.com'}</Text>
+        <Text style={[styles.nombre, { color: colors.text }]}>{user?.nombre || 'Usuario'}</Text>
+        <Text style={[styles.email, { color: colors.textSecondary }]}>{user?.email || 'email@ejemplo.com'}</Text>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Información Personal</Text>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Nombre</Text>
-          <Text style={styles.value}>{user?.nombre || 'No especificado'}</Text>
+      <View style={[styles.section, { borderBottomColor: colors.border }]}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Información Personal</Text>
+        <View style={[styles.infoRow, { borderBottomColor: colors.border }]}>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>Nombre</Text>
+          <Text style={[styles.value, { color: colors.text }]}>{user?.nombre || 'No especificado'}</Text>
         </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Email</Text>
-          <Text style={styles.value}>{user?.email || 'No especificado'}</Text>
+        <View style={[styles.infoRow, { borderBottomColor: colors.border }]}>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>Email</Text>
+          <Text style={[styles.value, { color: colors.text }]}>{user?.email || 'No especificado'}</Text>
         </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>ID Usuario</Text>
-          <Text style={styles.value}>{user?.id || 'No asignado'}</Text>
+        <View style={[styles.infoRow, { borderBottomColor: colors.border }]}>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>ID Usuario</Text>
+          <Text style={[styles.value, { color: colors.text }]}>{user?.id || 'No asignado'}</Text>
         </View>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Configuración</Text>
-        <TouchableOpacity style={styles.settingItem}>
-          <Text style={styles.settingLabel}>Notificaciones</Text>
-          <Text style={styles.settingValue}>Activadas</Text>
+      <View style={[styles.section, { borderBottomColor: colors.border }]}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Configuración</Text>
+        <TouchableOpacity style={[styles.settingItem, { borderBottomColor: colors.border }]}>
+          <Text style={[styles.settingLabel, { color: colors.text }]}>Notificaciones</Text>
+          <Text style={[styles.settingValue, { color: colors.textSecondary }]}>Activadas</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.settingItem}>
-          <Text style={styles.settingLabel}>Tema</Text>
-          <Text style={styles.settingValue}>Claro</Text>
+        <TouchableOpacity style={[styles.settingItem, { borderBottomColor: colors.border }]} onPress={toggleTheme}>
+          <Text style={[styles.settingLabel, { color: colors.text }]}>Tema</Text>
+          <Text style={[styles.settingValue, { color: colors.primary, fontWeight: '700' }]}>{theme === 'light' ? 'Claro' : 'Oscuro'}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.settingItem}>
-          <Text style={styles.settingLabel}>Moneda</Text>
-          <Text style={styles.settingValue}>MXN ($)</Text>
+        <TouchableOpacity style={[styles.settingItem, { borderBottomColor: colors.border }]}>
+          <Text style={[styles.settingLabel, { color: colors.text }]}>Moneda</Text>
+          <Text style={[styles.settingValue, { color: colors.textSecondary }]}>MXN ($)</Text>
         </TouchableOpacity>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Acerca de</Text>
-        <View style={styles.aboutItem}>
-          <Text style={styles.label}>Versión de la app</Text>
-          <Text style={styles.value}>1.0.0</Text>
+      <View style={[styles.section, { borderBottomColor: colors.border }]}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Acerca de</Text>
+        <View style={[styles.aboutItem, { borderBottomColor: colors.border }]}>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>Versión de la app</Text>
+          <Text style={[styles.value, { color: colors.text }]}>1.0.0</Text>
         </View>
-        <TouchableOpacity style={styles.aboutLink}>
-          <Text style={styles.aboutLinkText}>Términos de Servicio</Text>
+        <TouchableOpacity style={[styles.aboutLink, { borderBottomColor: colors.border }]}>
+          <Text style={[styles.aboutLinkText, { color: colors.primary }]}>Términos de Servicio</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.aboutLink}>
-          <Text style={styles.aboutLinkText}>Política de Privacidad</Text>
+        <TouchableOpacity style={[styles.aboutLink, { borderBottomColor: colors.border }]}>
+          <Text style={[styles.aboutLinkText, { color: colors.primary }]}>Política de Privacidad</Text>
         </TouchableOpacity>
       </View>
 
@@ -98,26 +104,26 @@ export function ProfileScreen() {
         />
       </View>
     </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   header: {
     alignItems: 'center',
     paddingVertical: 32,
-    backgroundColor: '#f9f9f9',
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
   },
   avatar: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#007AFF',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
@@ -130,23 +136,19 @@ const styles = StyleSheet.create({
   nombre: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#333',
   },
   email: {
     fontSize: 14,
-    color: '#666',
     marginTop: 4,
   },
   section: {
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
     paddingHorizontal: 16,
     paddingVertical: 16,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#333',
     marginBottom: 12,
   },
   infoRow: {
@@ -155,16 +157,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f9f9f9',
   },
   label: {
     fontSize: 14,
-    color: '#666',
     flex: 1,
   },
   value: {
     fontSize: 14,
-    color: '#333',
     fontWeight: '600',
     flex: 1,
     textAlign: 'right',
@@ -175,15 +174,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f9f9f9',
   },
   settingLabel: {
     fontSize: 14,
-    color: '#333',
   },
   settingValue: {
     fontSize: 14,
-    color: '#666',
   },
   aboutItem: {
     flexDirection: 'row',
@@ -191,16 +187,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f9f9f9',
   },
   aboutLink: {
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f9f9f9',
   },
   aboutLinkText: {
     fontSize: 14,
-    color: '#007AFF',
     fontWeight: '600',
   },
   logoutContainer: {

@@ -1,5 +1,7 @@
 import React from 'react';
 import { TextInput, StyleSheet, View, Text, TextInputProps } from 'react-native';
+import { useThemeStore } from '../store/themeStore';
+import { getThemeColors } from '../utils/colors';
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -11,12 +13,22 @@ export const Input: React.FC<InputProps> = ({
   error,
   ...props
 }) => {
+  const theme = useThemeStore((state) => state.theme);
+  const colors = getThemeColors(theme);
+
   return (
     <View style={styles.container}>
-      {label && <Text style={styles.label}>{label}</Text>}
+      {label && <Text style={[styles.label, { color: colors.text }]}>{label}</Text>}
       <TextInput
-        style={[styles.input, error && styles.inputError]}
-        placeholderTextColor="#999"
+        style={[
+          styles.input,
+          {
+            backgroundColor: colors.input,
+            borderColor: error ? '#ff3333' : colors.inputBorder,
+            color: colors.text,
+          }
+        ]}
+        placeholderTextColor={colors.textTertiary}
         {...props}
       />
       {error && <Text style={styles.errorText}>{error}</Text>}
@@ -32,19 +44,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     marginBottom: 8,
-    color: '#333',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 14,
-    backgroundColor: '#f9f9f9',
-  },
-  inputError: {
-    borderColor: '#ff3333',
   },
   errorText: {
     color: '#ff3333',

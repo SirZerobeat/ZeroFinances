@@ -10,12 +10,17 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChatMessage } from '../components/ChatMessage';
 import { useChatStore } from '../store/chatStore';
+import { useThemeStore } from '../store/themeStore';
+import { getThemeColors } from '../utils/colors';
 
 export function ChatScreen() {
   const [inputText, setInputText] = useState('');
   const { messages, isLoading, sendMessage } = useChatStore();
+  const theme = useThemeStore((state) => state.theme);
+  const colors = getThemeColors(theme);
   const flatListRef = useRef<FlatList>(null);
 
   useEffect(() => {
@@ -36,54 +41,69 @@ export function ChatScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
-    >
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <ChatMessage message={item} />}
-        contentContainerStyle={styles.messagesList}
-        onEndReachedThreshold={0.1}
-      />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardView}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <ChatMessage message={item} />}
+          contentContainerStyle={styles.messagesList}
+          onEndReachedThreshold={0.1}
+        />
 
-      <View style={styles.inputContainer}>
-        <View style={styles.inputWrapper}>
-          <TextInput
-            style={styles.input}
-            placeholder="Escribe un mensaje..."
-            placeholderTextColor="#999"
-            value={inputText}
-            onChangeText={setInputText}
-            editable={!isLoading}
-            multiline
-          />
+        <View style={[styles.inputContainer, { backgroundColor: colors.surface, borderTopColor: colors.border }]}>
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.input,
+                  borderColor: colors.inputBorder,
+                  color: colors.text,
+                }
+              ]}
+              placeholder="Escribe un mensaje..."
+              placeholderTextColor={colors.textTertiary}
+              value={inputText}
+              onChangeText={setInputText}
+              editable={!isLoading}
+              multiline
+            />
+          </View>
+          <TouchableOpacity
+            onPress={handleSendMessage}
+            disabled={isLoading || !inputText.trim()}
+            style={[
+              styles.sendButton,
+              {
+                backgroundColor: colors.primary,
+              },
+              (isLoading || !inputText.trim()) && styles.sendButtonDisabled
+            ]}
+          >
+            {isLoading ? (
+              <ActivityIndicator color="#fff" size="small" />
+            ) : (
+              <Text style={styles.sendButtonText}>Enviar</Text>
+            )}
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          onPress={handleSendMessage}
-          disabled={isLoading || !inputText.trim()}
-          style={[
-            styles.sendButton,
-            (isLoading || !inputText.trim()) && styles.sendButtonDisabled
-          ]}
-        >
-          {isLoading ? (
-            <ActivityIndicator color="#fff" size="small" />
-          ) : (
-            <Text style={styles.sendButtonText}>Enviar</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+  },
+  keyboardView: {
+    flex: 1,
   },
   messagesList: {
     paddingHorizontal: 12,
@@ -96,8 +116,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 12,
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-    backgroundColor: '#fff',
     alignItems: 'flex-end',
   },
   inputWrapper: {
@@ -107,15 +125,12 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 10,
     fontSize: 14,
-    backgroundColor: '#f9f9f9',
   },
   sendButton: {
-    backgroundColor: '#007AFF',
     borderRadius: 20,
     paddingHorizontal: 20,
     paddingVertical: 10,
@@ -131,3 +146,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 });
+

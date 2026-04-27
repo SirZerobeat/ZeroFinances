@@ -1,5 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, ViewStyle } from 'react-native';
+import { useThemeStore } from '../store/themeStore';
+import { getThemeColors } from '../utils/colors';
 
 interface ButtonProps {
   onPress: () => void;
@@ -18,24 +20,28 @@ export const Button: React.FC<ButtonProps> = ({
   style,
   variant = 'primary'
 }) => {
+  const theme = useThemeStore((state) => state.theme);
+  const colors = getThemeColors(theme);
+
+  const isPrimary = variant === 'primary';
+  const backgroundColor = isPrimary ? colors.primary : colors.surface;
+  const textColor = isPrimary ? '#fff' : colors.primary;
+
   return (
     <TouchableOpacity
       onPress={onPress}
       disabled={disabled || loading}
       style={[
         styles.button,
-        variant === 'primary' ? styles.primary : styles.secondary,
+        { backgroundColor },
         disabled && styles.disabled,
         style
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? '#fff' : '#007AFF'} />
+        <ActivityIndicator color={textColor} />
       ) : (
-        <Text style={[
-          styles.text,
-          variant === 'primary' ? styles.primaryText : styles.secondaryText
-        ]}>
+        <Text style={[styles.text, { color: textColor }]}>
           {title}
         </Text>
       )}
@@ -50,12 +56,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  primary: {
-    backgroundColor: '#007AFF',
-  },
-  secondary: {
-    backgroundColor: '#f0f0f0',
+    borderWidth: 1,
+    borderColor: 'transparent',
   },
   disabled: {
     opacity: 0.5,
@@ -63,11 +65,5 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 16,
     fontWeight: '600',
-  },
-  primaryText: {
-    color: '#fff',
-  },
-  secondaryText: {
-    color: '#007AFF',
   },
 });

@@ -6,12 +6,17 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTransactionStore } from '../store/transactionStore';
+import { useThemeStore } from '../store/themeStore';
+import { getThemeColors } from '../utils/colors';
 import { TransactionItem } from '../components/TransactionItem';
 
 export function CalendarScreen() {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const { transacciones } = useTransactionStore();
+  const theme = useThemeStore((state) => state.theme);
+  const colors = getThemeColors(theme);
 
   const getDaysInMonth = (date: Date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -46,20 +51,21 @@ export function CalendarScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.background }]}>
         <TouchableOpacity onPress={handlePreviousMonth}>
-          <Text style={styles.navButton}>← Anterior</Text>
+          <Text style={[styles.navButton, { color: colors.primary }]}>← Anterior</Text>
         </TouchableOpacity>
-        <Text style={styles.monthName}>{monthName}</Text>
+        <Text style={[styles.monthName, { color: colors.text }]}>{monthName}</Text>
         <TouchableOpacity onPress={handleNextMonth}>
-          <Text style={styles.navButton}>Siguiente →</Text>
+          <Text style={[styles.navButton, { color: colors.primary }]}>Siguiente →</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.calendarGrid}>
         {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sab'].map((day) => (
-          <Text key={day} style={styles.weekDay}>
+          <Text key={day} style={[styles.weekDay, { color: colors.textSecondary }]}>
             {day}
           </Text>
         ))}
@@ -67,7 +73,7 @@ export function CalendarScreen() {
         {Array(firstDay)
           .fill(null)
           .map((_, i) => (
-            <View key={`empty-${i}`} style={styles.emptyDay} />
+            <View key={`empty-${i}`} style={[styles.emptyDay, { backgroundColor: theme === 'dark' ? colors.surface : '#fafafa' }]} />
           ))}
 
         {days.map((day) => {
@@ -79,19 +85,21 @@ export function CalendarScreen() {
               key={day}
               style={[
                 styles.dayCell,
-                hasTransacciones && styles.dayWithTransacciones
+                { borderColor: colors.border },
+                hasTransacciones && { backgroundColor: theme === 'dark' ? colors.surface : '#f0f8ff' }
               ]}
             >
               <Text
                 style={[
                   styles.dayNumber,
-                  hasTransacciones && styles.dayNumberWithTransacciones
+                  { color: colors.text },
+                  hasTransacciones && { color: colors.primary }
                 ]}
               >
                 {day}
               </Text>
               {hasTransacciones && (
-                <View style={styles.transactionIndicator}>
+                <View style={[styles.transactionIndicator, { backgroundColor: colors.primary }]}>
                   <Text style={styles.indicatorText}>{dayTransacciones.length}</Text>
                 </View>
               )}
@@ -100,10 +108,10 @@ export function CalendarScreen() {
         })}
       </View>
 
-      <View style={styles.transactionsList}>
-        <Text style={styles.transactionsTitle}>Transacciones del mes</Text>
+      <View style={[styles.transactionsList, { borderTopColor: colors.border }]}>
+        <Text style={[styles.transactionsTitle, { color: colors.text }]}>Transacciones del mes</Text>
         {transacciones.length === 0 ? (
-          <Text style={styles.emptyMessage}>No hay transacciones</Text>
+          <Text style={[styles.emptyMessage, { color: colors.textSecondary }]}>No hay transacciones</Text>
         ) : (
           transacciones.map((t) => (
             <TransactionItem key={t.id} transaccion={t} />
@@ -111,30 +119,31 @@ export function CalendarScreen() {
         )}
       </View>
     </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    padding: 16,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 24,
+    paddingHorizontal: 16,
   },
   monthName: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#333',
     textTransform: 'capitalize',
   },
   navButton: {
     fontSize: 14,
-    color: '#007AFF',
     fontWeight: '600',
   },
   calendarGrid: {
@@ -142,12 +151,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     marginBottom: 24,
+    paddingHorizontal: 8,
   },
   weekDay: {
     width: '14.28%',
     textAlign: 'center',
     fontWeight: '600',
-    color: '#666',
     marginBottom: 12,
     fontSize: 12,
   },
@@ -155,32 +164,22 @@ const styles = StyleSheet.create({
     width: '14.28%',
     aspectRatio: 1,
     borderWidth: 1,
-    borderColor: '#f0f0f0',
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
   },
-  dayWithTransacciones: {
-    backgroundColor: '#f0f8ff',
-  },
   dayNumber: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
-  },
-  dayNumberWithTransacciones: {
-    color: '#007AFF',
   },
   emptyDay: {
     width: '14.28%',
     aspectRatio: 1,
-    backgroundColor: '#fafafa',
   },
   transactionIndicator: {
     position: 'absolute',
     bottom: 4,
     right: 4,
-    backgroundColor: '#007AFF',
     borderRadius: 8,
     width: 16,
     height: 16,
@@ -195,13 +194,12 @@ const styles = StyleSheet.create({
   transactionsList: {
     marginTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
     paddingTop: 16,
+    paddingHorizontal: 16,
   },
   transactionsTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#333',
     marginBottom: 12,
   },
   emptyMessage: {
