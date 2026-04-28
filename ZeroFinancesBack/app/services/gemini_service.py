@@ -5,16 +5,18 @@ import json
 from typing import Optional
 import asyncio
 
+# Modelo recomendado (puedes cambiarlo a gemini-2.0-flash si prefieres estabilidad)
+MODEL_NAME = 'gemma-3-4b-it'
+
 async def list_models():
     try:
-        # El método list() es una corrutina, primero debemos esperarla (await)
         models_page = await client.aio.models.list()
         for model in models_page:
             print(f"Modelo disponible: {model.name}")
     except Exception as e:
-        print(f"Error listando modelos: {e}")
-
-# Llama a esto en el startup
+        print(f"❌ Error crítico de conexión a Gemini: {e}")
+        if "API key expired" in str(e):
+            print("⚠️  Tu API Key ha expirado. Por favor renuévala en Google AI Studio.")
 
 client = genai.Client(
     api_key=settings.GEMINI_API_KEY
@@ -60,7 +62,7 @@ async def generate_zero_response(user_message: str) -> str:
     prompt_completo = f"{ZERO_SYSTEM_PROMPT}\n\nUsuario: {user_message}"
 
     config = types.GenerateContentConfig(
-        temperature=0.7,
+        temperature=0.2,
         top_p=0.95,
         max_output_tokens=800,
     )
@@ -69,7 +71,7 @@ async def generate_zero_response(user_message: str) -> str:
     for attempt in range(max_retries):
         try:
             response = await client.aio.models.generate_content(
-                model='gemini-3-flash-preview',
+                model=MODEL_NAME,
                 contents=prompt_completo,
                 config=config
             )
@@ -77,9 +79,18 @@ async def generate_zero_response(user_message: str) -> str:
 
         except Exception as e:
             error_msg = str(e)
-            # Si el modelo está saturado (503) o excedemos cuota (429), reintentamos con espera
-            if ("503" in error_msg or "429" in error_msg) and attempt < max_retries - 1:
-                # Espera incremental: 2s, 4s...
+            
+            if "400" in error_msg and "API key expired" in error_msg:
+                print("🚨 ERROR CRÍTICO: La API Key de Gemini ha expirado en .env.")
+                return "Lo siento, mi conexión con el cerebro de IA ha caducado. El administrador debe renovar la API Key. 🔑"
+
+            # Si excedemos cuota (429), el reintento de 2s suele ser poco. 
+            if "429" in error_msg:
+                print(f"⚠️ Cuota agotada para {MODEL_NAME}. Reintentando en breve...")
+                await asyncio.sleep(5) # Esperamos un poco más para 429
+                continue
+
+            if "503" in error_msg and attempt < max_retries - 1:
                 await asyncio.sleep((attempt + 1) * 2)
                 continue
                 
@@ -87,7 +98,7 @@ async def generate_zero_response(user_message: str) -> str:
             if "429" in error_msg:
                 return "Zero está un poco saturado ahora mismo (límite de cuota excedido). Por favor, intenta de nuevo en un minuto. ☕"
             if "503" in error_msg:
-                return "El modelo Gemini 3 está experimentando mucha demanda (error 503). Por favor, intenta de nuevo en unos segundos. ⏳"
+                return f"El modelo {MODEL_NAME} está experimentando mucha demanda (error 503). Por favor, intenta de nuevo en unos segundos. ⏳"
             return f"Disculpa, tuve un problema conectando con Gemini. Intenta de nuevo en un momento. Error: {error_msg}"
 
 
@@ -121,7 +132,7 @@ Si NO es una transacción, responde:
 Responde SOLO con JSON válido, sin explicaciones."""
 
         response = await client.aio.models.generate_content(
-            model='gemini-3-flash-preview',
+            model=MODEL_NAME,
             contents=parse_prompt
         )
 
@@ -172,7 +183,7 @@ Responde SOLO con JSON en este formato exacto:
 }}"""
 
         response = await client.aio.models.generate_content(
-            model='gemini-3-flash-preview',
+            model=MODEL_NAME,
             contents=prompt
         )
 

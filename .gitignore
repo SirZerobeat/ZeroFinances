@@ -11,6 +11,7 @@ __pycache__/
 
 # Variables de entorno (Seguridad)
 .env
+.env.template
 
 # Node / React Native (Frontend)
 node_modules/
