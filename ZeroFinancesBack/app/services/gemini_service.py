@@ -29,6 +29,8 @@ Tu personalidad:
 - Entendes chistes y puedes responder con humor
 - Proporcionas datos interesantes cuando se te pide
 - Siempre buscas relacionar temas con finanzas personales de manera natural
+- Eres extremadamente breve y vas directo al punto
+- No uses más de 2 párrafos cortos por respuesta
 
 Cuando el usuario:
 1. Dice "hola", "hey", etc: Responde calurosamente y pregunta cómo puedes ayudar con sus finanzas
@@ -37,12 +39,13 @@ Cuando el usuario:
 4. Habla de gastos/ingresos: Ayuda a categorizar, sugiere presupuestos, analiza patrones
 
 Ejemplos de respuestas:
-- Usuario: "Hola" → "¡Hola! Soy Zero, tu asistente de finanzas personales. 😊 ¿Cómo puedo ayudarte a gestionar mejor tu dinero hoy?"
-- Usuario: "Cuéntame un chiste" → "[Cuéntale un chiste divertido] ... Por cierto, ¿sabías que los pequeños ahorros diarios generan una diferencia importante? 💰"
-- Usuario: "Dame un dato" → "[Dato interesante sobre finanzas]"
-- Usuario: "Gasté $500 en KFC" → "Entendido. Registraré $500 de egreso en la categoría Alimentos/Comida rápida. ¿Es un gasto frecuente o fue ocasional?"
+- Usuario: "Hola" → "¡Hola! Soy Zero. 😊 ¿Cómo puedo ayudarte con tus finanzas hoy?"
+- Usuario: "Cuéntame un chiste" → "[Chiste corto] ... ¡Recuerda que ahorrar también es divertido! 💰"
+- Usuario: "Dame un dato" → "[Dato breve]"
+- Usuario: "Gasté $500 en KFC" → "Registrado: $500 en Alimentos. ¿Fue un gusto ocasional o parte de tu plan semanal?"
 
-Mantén las respuestas concisas (máximo 2-3 párrafos) y amigables."""
+Mantén las respuestas concisas (máximo 2-3 párrafos) y amigables.
+IMPORTANTE: Sé muy conciso. No te extiendas. Si la respuesta es larga, se cortará. Máximo 120 palabras."""
 
 
 async def generate_zero_response(user_message: str) -> str:
@@ -54,31 +57,38 @@ async def generate_zero_response(user_message: str) -> str:
     - Natural transition to finance topics
     - Eventually: transaction parsing
     """
-    try:
-        # Enviamos la instrucción dentro del contenido para máxima compatibilidad
-        prompt_completo = f"{ZERO_SYSTEM_PROMPT}\n\nUsuario: {user_message}"
+    prompt_completo = f"{ZERO_SYSTEM_PROMPT}\n\nUsuario: {user_message}"
 
-        config = types.GenerateContentConfig(
-            temperature=0.7,
-            top_p=0.95,
-            max_output_tokens=512,
-        )
+    config = types.GenerateContentConfig(
+        temperature=0.7,
+        top_p=0.95,
+        max_output_tokens=800,
+    )
 
-        response = await client.aio.models.generate_content(
-            model='gemini-3-flash-preview',
-            contents=prompt_completo,
-            config=config
-        )
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            response = await client.aio.models.generate_content(
+                model='gemini-3-flash-preview',
+                contents=prompt_completo,
+                config=config
+            )
+            return response.text
 
-        return response.text
-
-    except Exception as e:
-        # Fallback response if API fails
-        print(f"Error calling Gemini API: {e}")
-        if "429" in str(e):
-            return "Zero está un poco saturado ahora mismo (límite de cuota excedido). Por favor, intenta de nuevo en un minuto. ☕"
-            
-        return f"Disculpa, tuve un problema conectando con Gemini. Intenta de nuevo en un momento. Error: {str(e)}"
+        except Exception as e:
+            error_msg = str(e)
+            # Si el modelo está saturado (503) o excedemos cuota (429), reintentamos con espera
+            if ("503" in error_msg or "429" in error_msg) and attempt < max_retries - 1:
+                # Espera incremental: 2s, 4s...
+                await asyncio.sleep((attempt + 1) * 2)
+                continue
+                
+            print(f"Error calling Gemini API: {e}")
+            if "429" in error_msg:
+                return "Zero está un poco saturado ahora mismo (límite de cuota excedido). Por favor, intenta de nuevo en un minuto. ☕"
+            if "503" in error_msg:
+                return "El modelo Gemini 3 está experimentando mucha demanda (error 503). Por favor, intenta de nuevo en unos segundos. ⏳"
+            return f"Disculpa, tuve un problema conectando con Gemini. Intenta de nuevo en un momento. Error: {error_msg}"
 
 
 async def parse_transaction_from_gemini(user_message: str) -> Optional[dict]:

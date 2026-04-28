@@ -1,0 +1,25 @@
+# Entornos Virtuales
+venv/
+.venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Variables de entorno (Seguridad)
+.env
+
+# Node / React Native (Frontend)
+node_modules/
+.expo/
+dist/
+build/
+npm-debug.log*
+
+# Otros
+.DS_Store
+*.log
+*.sqlite
