@@ -62,7 +62,7 @@ class Transaccion(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     cuenta_id = Column(String(50), ForeignKey("cuentas.id"), nullable=True)
     categoria_trans_id = Column(Integer, ForeignKey("categorias_transaccion.id"), nullable=True)
-    pasivo_id = Column(Integer, ForeignKey("pasivos.id"), nullable=True, ondelete="SET NULL")
+    pasivo_id = Column(Integer, ForeignKey("pasivos.id", ondelete="SET NULL"), nullable=True)
     tipo = Column(String(10), nullable=False)  # ingreso, egreso
     monto = Column(Numeric(15, 2), nullable=False)
     fecha_transaccion = Column(Date, nullable=False)

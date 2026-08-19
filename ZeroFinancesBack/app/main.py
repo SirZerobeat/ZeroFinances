@@ -32,8 +32,8 @@ async def startup_event():
     await init_db()
     from app.services.gemini_service import list_models
     await list_models()
-    print("✅ Database connection initialized")
-    print(f"📊 Gemini API configured: {bool(settings.GEMINI_API_KEY)}")
+    print("[OK] Database connection initialized")
+    print(f"[INFO] Gemini API configured: {bool(settings.GEMINI_API_KEY)}")
 
 
 @app.get("/", tags=["Root"])

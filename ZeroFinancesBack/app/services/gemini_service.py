@@ -7,6 +7,7 @@ import asyncio
 
 # Modelo recomendado (puedes cambiarlo a gemini-2.0-flash si prefieres estabilidad)
 MODEL_NAME = 'gemma-3-4b-it'
+VISION_MODEL_NAME = 'gemini-2.0-flash'
 
 async def list_models():
     try:
@@ -14,9 +15,9 @@ async def list_models():
         for model in models_page:
             print(f"Modelo disponible: {model.name}")
     except Exception as e:
-        print(f"❌ Error crítico de conexión a Gemini: {e}")
+        print(f"[ERROR] Error crítico de conexión a Gemini: {e}")
         if "API key expired" in str(e):
-            print("⚠️  Tu API Key ha expirado. Por favor renuévala en Google AI Studio.")
+            print("[WARNING] Tu API Key ha expirado. Por favor renuévala en Google AI Studio.")
 
 client = genai.Client(
     api_key=settings.GEMINI_API_KEY
@@ -197,4 +198,49 @@ Responde SOLO con JSON en este formato exacto:
 
     except Exception as e:
         print(f"Error generating transaction JSON: {e}")
+        return None
+
+async def parse_receipt_image(image_bytes: bytes, mime_type: str) -> Optional[dict]:
+    """
+    Extract transaction data from a receipt image using Gemini Vision.
+    """
+    try:
+        prompt = """Analiza la imagen de este ticket de compra/factura.
+Extrae la información y estructúrala SOLO en formato JSON exacto:
+{
+  "transaccion_info": {
+    "tipo": "egreso",
+    "monto": número con decimales (el total),
+    "fecha": "YYYY-MM-DD",
+    "comercio": "nombre del comercio o tienda",
+    "categoria_padre": "categoría sugerida",
+    "es_correccion_ajuste": false,
+    "id_ajuste_detectado": null
+  },
+  "items": [
+    {"nombre": "item", "precio": número, "cat_prod": "categoría"}
+  ],
+  "logistica": {
+    "confianza": 0.0 a 1.0,
+    "requiere_confirmacion": false
+  }
+}
+Si no encuentras fecha, pon la fecha actual aproximada o nula. Responde SOLO con JSON válido."""
+        
+        response = await client.aio.models.generate_content(
+            model=VISION_MODEL_NAME,
+            contents=[
+                types.Part.from_bytes(data=image_bytes, mime_type=mime_type),
+                prompt
+            ]
+        )
+        
+        clean_response = response.text.strip()
+        start = clean_response.find('{')
+        end = clean_response.rfind('}') + 1
+        if start != -1 and end != 0:
+            return json.loads(clean_response[start:end])
+        return None
+    except Exception as e:
+        print(f"Error parsing receipt image: {e}")
         return None
