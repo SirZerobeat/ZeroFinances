@@ -6,8 +6,8 @@ from typing import Optional
 import asyncio
 
 # Modelo recomendado (puedes cambiarlo a gemini-2.0-flash si prefieres estabilidad)
-MODEL_NAME = 'gemma-3-4b-it'
-VISION_MODEL_NAME = 'gemini-2.0-flash'
+MODEL_NAME = 'gemini-3-flash-preview'
+VISION_MODEL_NAME = 'gemini-3-flash-preview'
 
 async def list_models():
     try:

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import apiClient from '../api/client';
 
 export interface Transaccion {
   id: string;
@@ -27,24 +28,17 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
   fetchTransacciones: async () => {
     set({ isLoading: true });
     try {
-      // TODO: Conectar con el backend FastAPI
-      // const response = await axios.get('http://localhost:8000/transacciones');
-      // set({ transacciones: response.data });
-
-      // Mock para desarrollo
-      set({
-        transacciones: [
-          {
-            id: '1',
-            tipo: 'egreso',
-            monto: 450,
-            categoria: 'Alimentos',
-            comercio: 'KFC',
-            fecha: new Date(),
-            descripcion: 'Comida'
-          }
-        ]
-      });
+      const response = await apiClient.get('/transacciones');
+      const data = response.data.map((t: any) => ({
+        id: t.id,
+        tipo: t.tipo,
+        monto: t.monto,
+        categoria: t.categoria_trans_id ? String(t.categoria_trans_id) : 'General',
+        comercio: t.comercio || 'Desconocido',
+        fecha: new Date(t.fecha_transaccion),
+        descripcion: t.descripcion
+      }));
+      set({ transacciones: data });
     } catch (error) {
       console.error('Fetch transacciones failed:', error);
     } finally {

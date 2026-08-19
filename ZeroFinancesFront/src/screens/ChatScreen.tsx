@@ -11,6 +11,8 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as ImagePicker from 'expo-image-picker';
+import { Ionicons } from '@expo/vector-icons';
 import { ChatMessage } from '../components/ChatMessage';
 import { useChatStore } from '../store/chatStore';
 import { useThemeStore } from '../store/themeStore';
@@ -18,7 +20,7 @@ import { getThemeColors } from '../utils/colors';
 
 export function ChatScreen() {
   const [inputText, setInputText] = useState('');
-  const { messages, isLoading, sendMessage } = useChatStore();
+  const { messages, isLoading, sendMessage, sendImage } = useChatStore();
   const theme = useThemeStore((state) => state.theme);
   const colors = getThemeColors(theme);
   const flatListRef = useRef<FlatList>(null);
@@ -40,6 +42,33 @@ export function ChatScreen() {
     }
   };
 
+  const handlePickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Se requiere permiso para acceder a la galería para subir tickets.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const asset = result.assets[0];
+      const uri = asset.uri;
+      const type = asset.mimeType || 'image/jpeg';
+      const filename = asset.fileName || `ticket_${Date.now()}.jpg`;
+      
+      try {
+        await sendImage(uri, type, filename);
+      } catch (e) {
+        console.error('Failed to send image:', e);
+      }
+    }
+  };
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
       <KeyboardAvoidingView
@@ -57,6 +86,9 @@ export function ChatScreen() {
         />
 
         <View style={[styles.inputContainer, { backgroundColor: colors.surface, borderTopColor: colors.border }]}>
+          <TouchableOpacity onPress={handlePickImage} style={styles.imageButton} disabled={isLoading}>
+            <Ionicons name="camera-outline" size={26} color={isLoading ? colors.textTertiary : colors.primary} />
+          </TouchableOpacity>
           <View style={styles.inputWrapper}>
             <TextInput
               style={[
@@ -116,7 +148,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 12,
     borderTopWidth: 1,
-    alignItems: 'flex-end',
+    alignItems: 'center',
+  },
+  imageButton: {
+    padding: 8,
+    marginRight: 4,
   },
   inputWrapper: {
     flex: 1,

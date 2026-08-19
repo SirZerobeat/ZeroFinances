@@ -2,64 +2,47 @@
 
 ZeroFinances es una solución integral diseñada para eliminar la fricción en el registro de finanzas personales. Utiliza un enfoque *AI-First* para procesar lenguaje natural (voz/texto) e imágenes (tickets/facturas), automatizando la gestión contable y proyectando la salud financiera del usuario mediante Inteligencia Artificial.
 
-### Resumen Ejecutivo
+A diferencia de las aplicaciones financieras tradicionales que requieren una entrada manual tediosa, este proyecto permite capturar información mediante una interfaz de chat multimodal. Los datos son procesados por Gemini, categorizados automáticamente y almacenados en una base de datos PostgreSQL auto-alojada.
 
-A diferencia de las aplicaciones financieras tradicionales que requieren una entrada manual tediosa, este proyecto permite capturar información mediante una interfaz de chat multimodal. Los datos son procesados por Gemini 1.5 Flash, categorizados automáticamente y almacenados en una base de datos PostgreSQL auto-alojada.
+---
 
-### Stack Tecnológico
-Componente		|Tecnología				|Descripción
-Frontend		|React Native(Expo) 	|Interfaz móvil para captura de audio, fotos y texto.
-Backend			|Python(FastAPI)		|Orquestador asíncrono de alto rendimiento.
-IA				|Gemini 1.5 Flash(API)	|OCR nativo, transcripción y estructuración de JSON.
-Base de Datos	|PostgreSQL				|Almacenamiento relacional ligero y robusto.
-Contenedores	|Docker & Compose		|Gestión de infraestructura local simplificada.
-Red				|Cloudflare Tunnel		|Exposición segura a internet sin apertura de puertos.
+## 📚 Documentación Consolidada
 
-### Arquitectura del Sistema 
+Para mantener el proyecto organizado, toda la información técnica, tutoriales y guías se ha consolidado en los siguientes documentos principales. Por favor, consulta el documento respectivo a tu área de trabajo:
 
-El flujo de información sigue una estructura de microservicios desacoplados para garantizar la escalabilidad y el mantenimiento:
+1. **[FRONTEND.md](file:///c:/Users/esteb/Work/Proyects/ZeroFinances/FRONTEND.md)**
+   Todo lo relacionado con la aplicación móvil interactiva.
+   *React Native, Expo, Zustand, Componentes, Sockets UI.*
 
-**1.Captura**: El usuario envía un ticket o nota de voz desde la App. 
-**2.Procesamiento**: FastAPI recibe el binario y lo envía a la API de Gemini con un prompt estructurado. 
-**3.Validación**: El backend valida el JSON devuelto por la IA mediante esquemas de Pydantic. 
-**4.Persistencia**: Los datos se insertan en PostgreSQL y el saldo de la cuenta se actualiza en tiempo real.
+2. **[BACKEND.md](file:///c:/Users/esteb/Work/Proyects/ZeroFinances/BACKEND.md)**
+   Todo lo relacionado con el servidor, la API y la Inteligencia Artificial.
+   *Python, FastAPI, Gemini AI, SQLAlchemy, JWT, endpoints.*
 
-### Esquema de Base de Datos (Propuesta Inicial)
+3. **[DATABASE.md](file:///c:/Users/esteb/Work/Proyects/ZeroFinances/DATABASE.md)**
+   Todo lo relacionado con la estructura y lógica de persistencia de datos.
+   *PostgreSQL, tablas relacionales, control de gastos fantasma.*
 
-'''PostgreSQL
+---
 
-CREATE TABLE usuarios (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    nombre VARCHAR(100),
-    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+## 🏁 Estado Actual del Proyecto
 
-CREATE TABLE cuentas (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    usuario_id UUID REFERENCES usuarios(id),
-    nombre_cuenta VARCHAR(50), -- Ej: "Nómina", "Ahorro"
-    saldo_actual DECIMAL(12, 2) DEFAULT 0.00
-);
+El desarrollo se ha dividido en fases. Actualmente, el proyecto cuenta con la implementación consolidada de las Fases 1 y 2.
 
-CREATE TABLE transacciones (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    cuenta_id UUID REFERENCES cuentas(id),
-    monto DECIMAL(12, 2) NOT NULL,
-    categoria VARCHAR(50),
-    tipo VARCHAR(10) CHECK (tipo IN ('ingreso', 'egreso')),
-    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+### ✅ Fase 1 Completada (Core & Chat Base)
+- Infraestructura Backend inicial con conexión asíncrona a la base de datos y middleware CORS.
+- Autenticación segura mediante JSON Web Tokens (JWT).
+- Chat interactivo conectado directamente a la API Gemini 1.5 Flash, habilitando la personalidad del asistente financiero "Zero".
 
-### Análisis de Costos (Estrategia $0 MXN) 
+### ✅ Fase 2 Completada (Inteligencia Transaccional & OCR)
+- Capacidad para crear registros contables a partir de lenguaje natural.
+- Integración Multimodal (Gemini 2.0 Flash) para subir tickets y extraer automáticamente el comercio, total e ítems individuales.
+- Sincronización en tiempo real vía WebSockets para actualizar el saldo en la pantalla del Frontend de inmediato.
 
-El proyecto está diseñado para operar bajo un esquema de costo cero aprovechando capas gratuitas: 
-**API Gemini**: Plan gratuito de Google AI Studio (15 **RPM**). 
-**Hosting**: Hardware propio (PC Intel i3, **16GB** **RAM**). 
-**Infraestructura**: Cloudflare Tunnel (Gratis) y Docker (Open Source). 
-**Desarrollo**: VS Code + Gemini Code Assist (Gratis para individuos).
+### 🔜 Próximos Pasos (Fase 3: Analítica y Reportes)
+- Dashboard interactivo con reportes y gráficas de consumo mensuales.
+- Gestión avanzada de Pasivos (tarjetas de crédito y préstamos).
+- Consultas RAG (Recuperación y Generación) para que Zero responda cosas como: *"¿Cuánto he gastado en comida este mes comparado al anterior?"*.
 
-### Futuro de la Aplicación 
-**Análisis Predictivo**: Proyecciones de ahorro a 8 meses basadas en patrones históricos. 
-**Gestión de Crédito**: Control de fechas de corte y recordatorios de pago. 
-**Privacidad Local**: Implementación de LLMs locales (Llama 3) para procesamiento offline.
-**Desarrollado por**: EstebanVersión de Python recomendada: 3.11+ / 3.12+ 
+---
+
+*Proyecto diseñado bajo una arquitectura de microservicios con un costo operativo meta de $0 MXN apoyándose en capas gratuitas y alojamiento local.*

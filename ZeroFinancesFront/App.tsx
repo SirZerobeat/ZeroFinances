@@ -5,17 +5,23 @@ import 'react-native-screens';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { useTransactionStore } from './src/store/transactionStore';
+import { useAccountStore } from './src/store/accountStore';
 import { useThemeStore } from './src/store/themeStore';
 import { getThemeColors } from './src/utils/colors';
+import { useWebSocket } from './src/hooks/useWebSocket';
 
 export default function App() {
   const { fetchTransacciones } = useTransactionStore();
+  const { fetchCuentas } = useAccountStore();
   const { theme, loadTheme } = useThemeStore();
+
+  useWebSocket();
 
   useEffect(() => {
     // Cargar tema guardado al iniciar
     loadTheme();
-    // Cargar transacciones al iniciar
+    // Cargar transacciones y cuentas al iniciar
+    fetchCuentas();
     fetchTransacciones();
   }, []);
 
